@@ -32,6 +32,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="../../include/crypto-json/data-encryption.hpp" />
 		<Unit filename="../../include/crypto-json/strip-json-comments.hpp" />
 		<Unit filename="../../include/crypto-json/utilities.hpp" />
 		<Unit filename="main.cpp" />

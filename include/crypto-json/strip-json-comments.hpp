@@ -20,9 +20,11 @@ namespace crypto_json {
      *
      * Source JS code: https://github.com/sindresorhus/strip-json-comments
      * \param json_string JSON string with comments
+     * \param with_whitespace
      * \return JSON string without comments
      */
-    std::string strip_json_comments(const std::string &json_string) noexcept {
+    std::string strip_json_comments(const std::string &json_string,
+            const bool with_whitespace = false) noexcept {
         enum CommentType {
             NO_COMMENT = 0,
             SINGLE_COMMENT = 1,
@@ -60,11 +62,23 @@ namespace crypto_json {
                     next_character == '\n') {
                 i++;
                 inside_comment = CommentType::NO_COMMENT;
+                // if (with_whitespace) result.insert(result.size(), i - offset, ' ');
+                if (with_whitespace) {
+                    std::string temp = json_string.substr(offset, i - offset);
+                    std::replace_if(temp.begin(), temp.end(), [](char ch){ return ch != '\n'; }, ' ');
+                    result += temp;
+                }
                 offset = i;
                 continue;
             } else if (inside_comment == CommentType::SINGLE_COMMENT &&
                     current_character == '\n') {
                 inside_comment = CommentType::NO_COMMENT;
+                // if (with_whitespace)  result.insert(result.size(), i - offset, ' ');
+                if (with_whitespace) {
+                    std::string temp = json_string.substr(offset, i - offset);
+                    std::replace_if(temp.begin(), temp.end(), [](char ch){ return ch != '\n'; }, ' ');
+                    result += temp;
+                }
                 offset = i;
             } else if (inside_comment == CommentType::NO_COMMENT &&
                     current_character == '/' &&
@@ -79,6 +93,12 @@ namespace crypto_json {
                     next_character == '/') {
                 i++;
                 inside_comment = CommentType::NO_COMMENT;
+                // if (with_whitespace)  result.insert(result.size(), i - offset + 1, ' ');
+                if (with_whitespace) {
+                    std::string temp = json_string.substr(offset, i - offset + 1);
+                    std::replace_if(temp.begin(), temp.end(), [](char ch){ return ch != '\n'; }, ' ');
+                    result += temp;
+                }
                 offset = i + 1;
                 continue;
             }

@@ -1,0 +1,27 @@
+[submodule "lib/json"]
+	path = lib/json
+	url = https://github.com/nlohmann/json.git
+[submodule "lib/AES"]
+	path = lib/AES
+	url = https://github.com/SergeyBel/AES.git
+[submodule "lib/imgui"]
+	path = lib/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "lib/brotli-hpp"]
+	path = lib/brotli-hpp
+	url = https://github.com/NewYaroslav/brotli-hpp.git
+[submodule "lib/brotli"]
+	path = lib/brotli
+	url = https://github.com/google/brotli.git
+[submodule "lib/imgui-sfml"]
+	path = lib/imgui-sfml
+	url = https://github.com/eliasdaler/imgui-sfml.git
+[submodule "lib/ImGuiColorTextEdit"]
+	path = lib/ImGuiColorTextEdit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit
+[submodule "lib/L2DFileDialog"]
+	path = lib/L2DFileDialog
+	url = https://github.com/Limeoats/L2DFileDialog.git
+[submodule "lib/ImGui-Addons"]
+	path = lib/ImGui-Addons
+	url = https://github.com/gallickgunner/ImGui-Addons.git
