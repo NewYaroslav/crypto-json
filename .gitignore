@@ -1,0 +1,11 @@
+code-blocks/*/obj/*
+code-blocks/*/*.dll
+code-blocks/*/*.depend
+code-blocks/*/*.layout
+code-blocks/*/gmon.out
+code-blocks/*/bin/*
+code-blocks/*/*.cookie
+code-blocks/*/*.exe
+code-blocks/*/imgui.ini
+lib/SFML-2.5.1-windows-gcc-7.3.0-mingw-64-bit/
+bin/

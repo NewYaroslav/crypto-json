@@ -361,14 +361,14 @@ int main() {
 
             if (cj_config.key.size() != key_size) {
                 cj_config.key.resize(key_size);
-                std::string new_key = crypto_json::to_str_hex(cj_config.key);
+                std::string new_key = crypto_json::to_hex_string(cj_config.key);
                 cj_config.clear_key_buffer();
                 std::memcpy(cj_config.key_buffer, new_key.c_str(), new_key.size());
             }
 
             if (cj_config.iv.size() != cj_config.key.size()) {
                 cj_config.iv.resize(cj_config.key.size());
-                std::string new_iv = crypto_json::to_str_hex(cj_config.iv);
+                std::string new_iv = crypto_json::to_hex_string(cj_config.iv);
                 cj_config.clear_iv_buffer();
                 std::memcpy(cj_config.iv_buffer, new_iv.c_str(), new_iv.size());
             }
@@ -377,13 +377,13 @@ int main() {
                 ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase);
             ImGui::SameLine();
             if (ImGui::Button("copy##ButtonKeyCopy")) {
-                crypto_json::to_clipboard(crypto_json::to_str_hex(cj_config.key));
+                crypto_json::to_clipboard(crypto_json::to_hex_string(cj_config.key));
             }
             if (decode_settings_save_file) {
                 ImGui::SameLine();
                 if (ImGui::Button("generate##ButtonKeyGenerate")) {
                     crypto_json::generate_key_or_iv(cj_config.key);
-                    std::string new_key = crypto_json::to_str_hex(cj_config.key);
+                    std::string new_key = crypto_json::to_hex_string(cj_config.key);
                     cj_config.clear_key_buffer();
                     std::memcpy(cj_config.key_buffer, new_key.c_str(), new_key.size());
                 }
@@ -394,13 +394,13 @@ int main() {
                 ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase);
                 ImGui::SameLine();
                 if (ImGui::Button("copy##ButtonIvCopy")) {
-                    crypto_json::to_clipboard(crypto_json::to_str_hex(cj_config.iv));
+                    crypto_json::to_clipboard(crypto_json::to_hex_string(cj_config.iv));
                 }
                 if (decode_settings_save_file) {
                     ImGui::SameLine();
                     if (ImGui::Button("generate##ButtonIvGenerate")) {
                         crypto_json::generate_key_or_iv(cj_config.iv);
-                        std::string new_iv = crypto_json::to_str_hex(cj_config.iv);
+                        std::string new_iv = crypto_json::to_hex_string(cj_config.iv);
                         cj_config.clear_iv_buffer();
                         std::memcpy(cj_config.iv_buffer, new_iv.c_str(), new_iv.size());
                     }
@@ -410,8 +410,8 @@ int main() {
             /* переносим данные из cj_config.key_buffer и cj_config.iv_buffer
              * в cj_config.key и cj_config.iv
              */
-            crypto_json::convert_hex_str_to_byte(cj_config.iv_buffer, cj_config.iv);
-            crypto_json::convert_hex_str_to_byte(cj_config.key_buffer, cj_config.key);
+            crypto_json::convert_hex_string_to_byte(cj_config.iv_buffer, cj_config.iv);
+            crypto_json::convert_hex_string_to_byte(cj_config.key_buffer, cj_config.key);
 
             if(!cj_config.use_encryption) {
                 ImGui::PopItemFlag();

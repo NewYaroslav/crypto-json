@@ -92,6 +92,7 @@ namespace crypto_json {
             const EncryptionAlgorithmType type,
             const bool use_brotly) {
         if (key.size() != iv.size()) return std::string();
+
         if (check_ecb(type) || !check_key_length(key, type) || key.size() != iv.size()) return std::string();
 
         if (use_brotly) {
@@ -268,9 +269,10 @@ namespace crypto_json {
             const T &key,
             const EncryptionAlgorithmType type,
             const bool use_brotly) {
-        return json::parse(
-            strip_json_comments(
-                crypto_json_to_string(src, key, type, use_brotly)));
+        try {
+            return json::parse(strip_json_comments(to_string(src, key, type, use_brotly)));
+        } catch(...) {}
+        return nullptr;
     }
 
     template<class T>
@@ -280,57 +282,30 @@ namespace crypto_json {
             const T &iv,
             const EncryptionAlgorithmType type,
             const bool use_brotly) {
-        return json::parse(
-            strip_json_comments(
-                crypto_json_to_string(src, key, iv, type, use_brotly)));
+        try {
+            return json::parse(strip_json_comments(to_string(src, key, iv, type, use_brotly)));
+        } catch(...) {}
+        return nullptr;
     }
 
-    class JsonSax : nlohmann::json_sax<json> {
-    public:
-        std::vector<std::pair<int, std::string>> errors;
+    template<class T>
+    std::string to_crypto_json(
+            const json &src,
+            const T &key,
+            const EncryptionAlgorithmType type,
+            const bool use_brotly) {
+        return to_crypto_json(src.dump(), key, type, use_brotly);
+    }
 
-        JsonSax() {};
-        virtual ~JsonSax() {};
-
-
-        // called when null is parsed
-        bool null() {
-            std::cout << "null" << std::endl;
-            return true;
-        };
-
-        // called when a boolean is parsed; value is passed
-        bool boolean(bool val) {return true;};
-
-        // called when a signed or unsigned integer number is parsed; value is passed
-        bool number_integer(number_integer_t val) {return true;};
-        bool number_unsigned(number_unsigned_t val) {return true;};
-
-        // called when a floating-point number is parsed; value and original string is passed
-        bool number_float(number_float_t val, const string_t& s) {return true;};
-
-        // called when a string is parsed; value is passed and can be safely moved away
-        bool string(string_t& val) {return true;};
-        // called when a binary value is parsed; value is passed and can be safely moved away
-        bool binary(binary_t& val) {return true;};
-
-        // called when an object or array begins or ends, resp. The number of elements is passed (or -1 if not known)
-        bool start_object(std::size_t elements) {return true;};
-        bool end_object(){return true;};
-        bool start_array(std::size_t elements) {return true;};
-        bool end_array(){return true;};
-        // called when an object key is parsed; value is passed and can be safely moved away
-        bool key(string_t& val) { return true; };
-
-        // called when a parse error occurs; byte position, the last token, and an exception is passed
-        bool parse_error(std::size_t position, const std::string& last_token, const nlohmann::detail::exception& ex) {
-            std::cout << "position:" << position << std::endl;
-            std::cout << "last_token:" << last_token << std::endl;
-            std::cout << "ex:" << ex.what() << std::endl;
-            errors.push_back(std::make_pair(position, ex.what()));
-            return true;
-        }
-    };
+    template<class T>
+    std::string to_crypto_json(
+            const json &src,
+            const T &key,
+            const T &iv,
+            const EncryptionAlgorithmType type,
+            const bool use_brotly) {
+        return to_crypto_json(src.dump(), key, iv, type, use_brotly);
+    }
 #endif
 
 }; // crypto_json

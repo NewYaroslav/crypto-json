@@ -42,12 +42,12 @@ namespace crypto_json {
     }
 
     template<class T>
-    bool check_key_length(const T& key, const EncryptionAlgorithmType type) {
+    inline bool check_key_length(const T& key, const EncryptionAlgorithmType type) {
         if ((get_key_size(type)/8) != key.size()) return false;
         return true;
     };
 
-    bool check_ecb(const EncryptionAlgorithmType type) noexcept {
+    inline bool check_ecb(const EncryptionAlgorithmType type) noexcept {
         switch (type) {
 		case EncryptionAlgorithmType::USE_AES_ECB_256:
         case EncryptionAlgorithmType::USE_AES_ECB_192:
@@ -56,6 +56,17 @@ namespace crypto_json {
         default:
             return false;
 		};
+    }
+
+    inline void add_data_length(std::string &data, const uint32_t length) {
+		const char *bytes = (const char *)&length;
+		data.insert(data.end(), &bytes[0], &bytes[0] + sizeof(uint32_t));
+    }
+
+    inline uint32_t get_data_length(const std::string &data) noexcept {
+        const char *bytes = data.substr(data.size() - sizeof(uint32_t), sizeof(uint32_t)).data();
+        const uint32_t length = ((const uint32_t*)bytes)[0];
+        return length;
     }
 
     /** \brief Зашифровать данные строки
@@ -78,11 +89,7 @@ namespace crypto_json {
         std::string temp((char*)out, (char*)out + length);
         delete[] out;
 
-        const uint32_t data_length = data.size();
-		temp.push_back((0xFF & (data_length >> 24)));
-		temp.push_back((0xFF & (data_length >> 16)));
-		temp.push_back((0xFF & (data_length >> 8)));
-		temp.push_back((0xFF & (data_length >> 0)));
+        add_data_length(temp, data.size());
         return temp;
 	}
 
@@ -123,11 +130,7 @@ namespace crypto_json {
 		std::string temp((char*)out, (char*)out + length);
         delete[] out;
 
-        const uint32_t data_length = data.size();
-		temp.push_back((0xFF & (data_length >> 24)));
-		temp.push_back((0xFF & (data_length >> 16)));
-		temp.push_back((0xFF & (data_length >> 8)));
-		temp.push_back((0xFF & (data_length >> 0)));
+        add_data_length(temp, data.size());
         return temp;
 	}
 
@@ -143,12 +146,7 @@ namespace crypto_json {
             const std::string &data,
             const T &key) noexcept {
 		if(data.size() < 4) return std::string();
-		const uint32_t max_index = data.size() - 1;
-		const uint32_t decrypted_data_length =
-            ((uint32_t)data[max_index - 3] << 24) |
-            ((uint32_t)data[max_index - 2] << 16) |
-            ((uint32_t)data[max_index - 1] << 8) |
-            ((uint32_t)data[max_index - 0] << 0);
+		const uint32_t decrypted_data_length = get_data_length(data);
         if (decrypted_data_length > (data.size() - 4)) return std::string();
 
         const uint32_t key_size = get_key_size(type);
@@ -178,13 +176,7 @@ namespace crypto_json {
             const T &key,
             const T &iv) noexcept {
 		if(data.size() < 4) return std::string();
-		const uint32_t max_index = data.size() - 1;
-		const uint32_t decrypted_data_length =
-            ((uint32_t)data[max_index - 3] << 24) |
-            ((uint32_t)data[max_index - 2] << 16) |
-            ((uint32_t)data[max_index - 1] << 8) |
-            ((uint32_t)data[max_index - 0] << 0);
-
+		const uint32_t decrypted_data_length = get_data_length(data);
         if (decrypted_data_length > (data.size() - 4)) return std::string();
 
         const uint32_t key_size = get_key_size(type);

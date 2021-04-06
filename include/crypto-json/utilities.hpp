@@ -8,6 +8,10 @@
 #include <dirent.h>
 #include <dir.h>
 
+#ifdef CRYPTO_JSON_USE_NLOHMANN_JSON
+#include <nlohmann/json.hpp>
+#endif
+
 #if defined(_WIN32)
 #ifndef __MINGW32__
 #include <Windows.h>
@@ -121,7 +125,7 @@ namespace crypto_json {
     }
 
     template<class T>
-    std::string to_str_hex(const T &source) {
+    std::string to_hex_string(const T &source) {
         std::string temp;
         for(size_t i = 0; i < source.size(); ++i) {
 #           if(0)
@@ -144,7 +148,7 @@ namespace crypto_json {
      * \return Массив данных
      */
     template<class T>
-    bool convert_hex_str_to_byte(const std::string &source, T &binary) {
+    bool convert_hex_string_to_byte(const std::string &source, T &binary) {
         if (std::string::npos != source.find_first_not_of("0123456789ABCDEFabcdef")) {
             // you can throw exception here
             return false;
@@ -195,6 +199,55 @@ namespace crypto_json {
         }
     }
 #   endif
+
+
+#ifdef CRYPTO_JSON_USE_NLOHMANN_JSON
+    using json = nlohmann::json;
+
+    class JsonSax : nlohmann::json_sax<json> {
+    public:
+        std::vector<std::pair<int, std::string>> errors;
+
+        JsonSax() {};
+        virtual ~JsonSax() {};
+
+
+        // called when null is parsed
+        bool null() {
+            std::cout << "null" << std::endl;
+            return true;
+        };
+
+        // called when a boolean is parsed; value is passed
+        bool boolean(bool val) {return true;};
+
+        // called when a signed or unsigned integer number is parsed; value is passed
+        bool number_integer(number_integer_t val) {return true;};
+        bool number_unsigned(number_unsigned_t val) {return true;};
+
+        // called when a floating-point number is parsed; value and original string is passed
+        bool number_float(number_float_t val, const string_t& s) {return true;};
+
+        // called when a string is parsed; value is passed and can be safely moved away
+        bool string(string_t& val) {return true;};
+        // called when a binary value is parsed; value is passed and can be safely moved away
+        bool binary(binary_t& val) {return true;};
+
+        // called when an object or array begins or ends, resp. The number of elements is passed (or -1 if not known)
+        bool start_object(std::size_t elements) {return true;};
+        bool end_object(){return true;};
+        bool start_array(std::size_t elements) {return true;};
+        bool end_array(){return true;};
+        // called when an object key is parsed; value is passed and can be safely moved away
+        bool key(string_t& val) { return true; };
+
+        // called when a parse error occurs; byte position, the last token, and an exception is passed
+        bool parse_error(std::size_t position, const std::string& last_token, const nlohmann::detail::exception& ex) {
+            errors.push_back(std::make_pair(position, ex.what()));
+            return true;
+        }
+    };
+#endif
 }
 
 #endif // CRYPTO_JSON_UTILITIES_HPP_INCLUDED

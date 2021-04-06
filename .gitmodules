@@ -19,3 +19,6 @@
 [submodule "lib/ImGui-Addons"]
 	path = lib/ImGui-Addons
 	url = https://github.com/gallickgunner/ImGui-Addons.git
+[submodule "lib/ImGuiColorTextEdit"]
+	path = lib/ImGuiColorTextEdit
+	url = https://github.com/NewYaroslav/ImGuiColorTextEdit.git
