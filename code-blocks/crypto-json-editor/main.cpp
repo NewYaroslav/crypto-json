@@ -1,5 +1,7 @@
 #include <iostream>
+#include "ico.h"
 #include "imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui_internal.h"
 #include "imgui-SFML.h"
 #include "TextEditor.h"
@@ -10,68 +12,45 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
-#include "include/fonts.hpp"
-#include "include/style.hpp"
-
 #include <crypto-json/crypto-json.hpp>
 
-#include <fstream>
-#include <streambuf>
+#include "include/config.hpp"
+#include "include/crypto-json-config.hpp"
+#include "include/fonts.hpp"
+#include "include/style.hpp"
+#include "include/utility.hpp"
+#include "include/imgui-addons.hpp"
+#include "include/icon.hpp"
 
-class CryptoJsonConfig {
-public:
-    std::string path;
-    std::vector<uint8_t> key;
-    std::vector<uint8_t> iv;
-    char key_buffer[65];
-    char iv_buffer[65];
-    bool use_brotly = true;
-    bool use_encryption = true;
+//#include <fstream>
+//#include <streambuf>
 
-    crypto_json::EncryptionAlgorithmType type;
-
-    void clear_key() {
-        std::fill(key.begin(), key.end(), '\0');
-    }
-
-    void clear_iv() {
-        std::fill(iv.begin(), iv.end(), '\0');
-    }
-
-    void clear_key_buffer() {
-        std::fill(key_buffer, key_buffer + sizeof(key_buffer) - 1, '\0');
-    }
-
-    void clear_iv_buffer() {
-        std::fill(iv_buffer, iv_buffer + sizeof(iv_buffer) - 1, '\0');
-    }
-
-
-} cj_config;
+CryptoJsonConfig cj_config;
+crypto_json_editor::Config config;
 
 int main() {
-    const std::string window_name("CryptoJSON Editor");
-    const size_t start_window_width = 800;
-    const size_t start_window_height = 500;
-    const size_t indent_basement = 64;
+    HWND hConsole = GetConsoleWindow();
+    ShowWindow(hConsole, SW_HIDE);
 
-    const size_t decode_settings_width = 740;
-    const size_t decode_settings_height = 280;
+    /* инициализируем окно */
+    sf::RenderWindow window(sf::VideoMode(config.start_window_width, config.start_window_height), config.window_name.c_str());
+    window.setFramerateLimit(config.framerate);
 
-    sf::RenderWindow window(sf::VideoMode(start_window_width, start_window_height), window_name.c_str());
-    window.setFramerateLimit(60);
+    /* настраиваем внешний вид программы */
+    window.setIcon(crypto_json_editor_icon_256x256.width,  crypto_json_editor_icon_256x256.height,  crypto_json_editor_icon_256x256.pixel_data);
     ImGui::SFML::Init(window, false);
-
     ImGui::StyleColorsDark();
     init_fonts();
     init_style();
 
+    /* создаем браузер файловой системы и редактор текста */
     imgui_addons::ImGuiFileBrowser file_dialog;
-
     TextEditor editor;
 	auto lang = TextEditor::LanguageDefinition::JSON();
 	editor.SetLanguageDefinition(lang);
+	crypto_json_editor::ErrorPopup error_popup("##ErrorPopup");
 
+	/* запускаем основной цикл */
     sf::Clock delta_clock;
     while (window.isOpen()) {
         sf::Event event;
@@ -82,7 +61,13 @@ int main() {
                 window.close();
             } else
             if (event.type == sf::Event::Resized) {
-
+                sf::Vector2u window_size = window.getSize();
+                if (window_size.x < config.start_window_width ||
+                    window_size.y < config.start_window_height) {
+                    window_size.x = std::max(window_size.x, (uint32_t)config.start_window_width);
+                    window_size.y = std::max(window_size.y, (uint32_t)config.start_window_height);
+                    window.setSize(window_size);
+                }
             }
         }
 
@@ -98,24 +83,24 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(0,0),ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(
             window_width,
-            (window_height - indent_basement)),
+            (window_height - config.indent_basement)),
             ImGuiCond_Always);
 		ImGui::Begin("CryptoJsonMainMenu", nullptr,
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_HorizontalScrollbar |
             ImGuiWindowFlags_MenuBar);
 		// ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
 
         bool file_dialog_open = false, file_dialog_save = false;
+        bool clipboard_error_dialog_open = false;
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Open")) {
 					file_dialog_open = true;
 				}
-				if (ImGui::MenuItem("Save")) {
+				if (ImGui::MenuItem("Save", nullptr, nullptr, cj_config.is_init)) {
 					/* сохраняем файл */
 					auto text = editor.GetText();
                     bool is_save = false;
@@ -193,13 +178,14 @@ int main() {
 		/*====================================================================*/
 		ImGui::SetNextWindowPos(ImVec2(
             0,
-            (window_height - indent_basement)),
+            (window_height - config.indent_basement)),
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(
             window_width,
-            indent_basement),
+            config.indent_basement),
             ImGuiCond_Always);
 
+        bool is_copy_json_to_clipboard_error = false;
         ImGui::Begin("##basement", NULL,
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoResize |
@@ -232,18 +218,17 @@ int main() {
             ImGui::SameLine();
 
             if (ImGui::Button("copy JSON##ButtonCopyJson")) {
-                auto text = editor.GetText();
-                std::cout << text << std::endl;
-                std::string strip_json = crypto_json::strip_json_comments(text);
-                std::cout << strip_json << std::endl;
-                std::string dump_json;
-                try {
-                    crypto_json::json j = crypto_json::json::parse(strip_json);
-                    dump_json = j.dump(4);
-                } catch(...) {
-                    std::cout << "error dump" << std::endl;
-                };
-                crypto_json::to_clipboard(dump_json);
+                if (!crypto_json_editor::copy_json_to_clipboard(editor.GetText())) {
+                    error_popup.open("ERROR", "Error copying JSON string");
+                }
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("copy formated JSON##ButtonCopyJson")) {
+                if (!crypto_json_editor::copy_json_to_clipboard(editor.GetText(), true)) {
+                    error_popup.open("ERROR", "Error copying JSON formatted string");
+                }
             }
         } // basement
         ImGui::End();
@@ -298,12 +283,12 @@ int main() {
 
 
         ImGui::SetNextWindowPos(ImVec2(
-            ((window_width - decode_settings_width)/2),
-            ((window_height - decode_settings_height)/2)),
+            ((window_width - config.decode_settings_width)/2),
+            ((window_height - config.decode_settings_height)/2)),
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(
-            decode_settings_width,
-            decode_settings_height),
+            config.decode_settings_width,
+            config.decode_settings_height),
             ImGuiCond_Always);
 
         bool is_decode_settings = false;
@@ -451,8 +436,8 @@ int main() {
                     }
                 } else {
                     std::string temp;
-                    std::cout << crypto_json::to_str_hex(cj_config.key) << std::endl;
-                    std::cout << crypto_json::to_str_hex(cj_config.iv) << std::endl;
+                    //std::cout << crypto_json::to_str_hex(cj_config.key) << std::endl;
+                    //std::cout << crypto_json::to_str_hex(cj_config.iv) << std::endl;
                     if (cj_config.use_encryption) {
                         if (crypto_json::check_ecb(cj_config.type)) {
                             temp = crypto_json::load_file(cj_config.path, cj_config.key, cj_config.type, cj_config.use_brotly);
@@ -462,18 +447,19 @@ int main() {
                     } else {
                         temp = crypto_json::load_file(cj_config.path, cj_config.use_brotly);
                     }
-                    std::cout << temp << std::endl;
+                    if (temp.empty()) error_popup.open("ERROR", "Data in file is missing or decoding error");
                     editor.SetText(temp);
                 }
                 ImGui::CloseCurrentPopup();
+                cj_config.is_init = true;
             }
 
             ImGui::EndPopup();
         }
         /*====================================================================*/
+        error_popup.show_dialog();
 
-
-        window.clear();
+        window.clear(config.window_background);
         ImGui::SFML::Render(window);
         window.display();
     }

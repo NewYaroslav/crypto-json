@@ -16,12 +16,6 @@
 [submodule "lib/imgui-sfml"]
 	path = lib/imgui-sfml
 	url = https://github.com/eliasdaler/imgui-sfml.git
-[submodule "lib/ImGuiColorTextEdit"]
-	path = lib/ImGuiColorTextEdit
-	url = https://github.com/BalazsJako/ImGuiColorTextEdit
-[submodule "lib/L2DFileDialog"]
-	path = lib/L2DFileDialog
-	url = https://github.com/Limeoats/L2DFileDialog.git
 [submodule "lib/ImGui-Addons"]
 	path = lib/ImGui-Addons
 	url = https://github.com/gallickgunner/ImGui-Addons.git

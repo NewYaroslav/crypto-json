@@ -149,14 +149,19 @@ namespace crypto_json {
             ((uint32_t)data[max_index - 2] << 16) |
             ((uint32_t)data[max_index - 1] << 8) |
             ((uint32_t)data[max_index - 0] << 0);
+        if (decrypted_data_length > (data.size() - 4)) return std::string();
 
         const uint32_t key_size = get_key_size(type);
 		if (!check_ecb(type) || key_size == 0) return std::string();
 
-		AES aes(key_size);
-		unsigned char *innew = aes.DecryptECB((uint8_t*)data.data(), data.size() - sizeof(uint32_t), (uint8_t*)key.data());
-		std::vector<uint8_t> temp(innew, innew + decrypted_data_length);
-		delete[] innew;
+		try {
+            AES aes(key_size);
+            unsigned char *innew = aes.DecryptECB((uint8_t*)data.data(), data.size() - sizeof(uint32_t), (uint8_t*)key.data());
+            std::string temp((const char*)innew, (const char*)innew + decrypted_data_length);
+            delete[] innew;
+            return temp;
+		} catch(...) {};
+		return std::string();
 	}
 
 	/** \brief Зашифровать данные массива
@@ -179,6 +184,8 @@ namespace crypto_json {
             ((uint32_t)data[max_index - 2] << 16) |
             ((uint32_t)data[max_index - 1] << 8) |
             ((uint32_t)data[max_index - 0] << 0);
+
+        if (decrypted_data_length > (data.size() - 4)) return std::string();
 
         const uint32_t key_size = get_key_size(type);
 		if (check_ecb(type) || key_size == 0) return std::string();

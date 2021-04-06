@@ -1,0 +1,6 @@
+#ifndef ICO_H_INCLUDED
+#define ICO_H_INCLUDED
+
+#define CRYPTO_JSON_EDITOR_ICON	1
+
+#endif // ICO_H_INCLUDED

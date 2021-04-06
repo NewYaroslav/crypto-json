@@ -9,33 +9,22 @@
  * 84 101 121 - RGB цвет неактивного текста
  */
 
-const ImVec4 CRYPTO_JSON_EDITOR_LIGHT = ImVec4(41.0f/255.0f, 148.0f/255.0f, 194.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_ACTIVE_WINDOW_BG = ImVec4(35.0f/255.0f, 51.0f/255.0f, 66.0f/255.0f, 1.00f);
+
+const ImVec4 CRYPTO_JSON_EDITOR_ACTIVE_WINDOW_BG = ImVec4(35.0f/255.0f, 35.0f/255.0f, 35.0f/255.0f, 1.00f);
 const ImVec4 CRYPTO_JSON_EDITOR_INACTIVE_WINDOW_BG = ImVec4(30.0f/255.0f, 44.0f/255.0f, 57.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_WINDOW2_BG = ImVec4(16.0f/255.0f, 32.0f/255.0f, 49.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_WINDOW_BG = ImVec4(24.0f/255.0f, 38.0f/255.0f, 49.0f/255.0f, 1.00f);
+
 const ImVec4 CRYPTO_JSON_EDITOR_TEXT = ImVec4(250.0f/255.0f, 250.0f/255.0f, 250.0f/255.0f, 1.00f);
 const ImVec4 CRYPTO_JSON_EDITOR_DISABLED_TEXT = ImVec4(84.0f/255.0f, 101.0f/255.0f, 121.0f/255.0f, 1.00f);
 
-/*
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON2 = ImVec4(16.0f/255.0f, 32.0f/255.0f, 49.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON2_HOVERED = ImVec4(24.0f/255.0f, 40.0f/255.0f, 57.0f/255.0f, 1.00f);
+const ImVec4 CRYPTO_JSON_EDITOR_LIGHT = ImVec4(41.0f/255.0f, 148.0f/255.0f, 194.0f/255.0f, 1.00f);
 
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON = ImVec4(33.0f/255.0f, 48.0f/255.0f, 66.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_HOVERED = ImVec4(33.0f/255.0f, 56.0f/255.0f, 82.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_ACTIVE = ImVec4(24.0f/255.0f, 40.0f/255.0f, 57.0f/255.0f, 1.00f);
-*/
+const ImVec4 CRYPTO_JSON_EDITOR_BUTTON = ImVec4(32.0f/255.0f, 32.0f/255.0f, 32.0f/255.0f, 1.00f);
+const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_HOVERED = ImVec4(48.0f/255.0f, 48.0f/255.0f, 48.0f/255.0f, 1.00f);
+const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_ACTIVE = ImVec4(62.0f/255.0f, 62.0f/255.0f, 62.0f/255.0f, 1.00f);
 
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON2 = ImVec4(16.0f/255.0f, 32.0f/255.0f, 49.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON2_HOVERED = ImVec4(24.0f/255.0f, 40.0f/255.0f, 57.0f/255.0f, 1.00f);
+const ImVec4 CRYPTO_JSON_EDITOR_WINDOW_BG = ImVec4(16.0f/255.0f, 16.0f/255.0f, 16.0f/255.0f, 1.00f);
 
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON = ImVec4(28.0f/255.0f, 28.0f/255.0f, 28.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_HOVERED = ImVec4(46.0f/255.0f, 46.0f/255.0f, 46.0f/255.0f, 1.00f);
-const ImVec4 CRYPTO_JSON_EDITOR_BUTTON_ACTIVE = ImVec4(58.0f/255.0f, 58.0f/255.0f, 58.0f/255.0f, 1.00f);
-
-const ImVec4 RED_COLOR = ImVec4(255.0f/255.0f, 1.0f/255.0f, 1.0f/255.0f, 1.00f);
-const ImVec4 ERROR_COLOR = ImVec4(255.0f/255.0f, 1.0f/255.0f, 1.0f/255.0f, 1.00f);
-const ImVec4 ERROR2_COLOR = ImVec4(255.0f/255.0f, 255.0f/255.0f, 0.1f/255.0f, 1.00f);
+const ImVec4 CRYPTO_JSON_EDITOR_RED_COLOR = ImVec4(255.0f/255.0f, 1.0f/255.0f, 1.0f/255.0f, 1.00f);
 
 static void init_style() {
     ImGuiStyle * style = &ImGui::GetStyle();
@@ -67,6 +56,21 @@ static void init_style() {
     style->Colors[ImGuiCol_Header] = CRYPTO_JSON_EDITOR_WINDOW_BG;
     style->Colors[ImGuiCol_HeaderHovered] = CRYPTO_JSON_EDITOR_BUTTON_HOVERED;
     style->Colors[ImGuiCol_HeaderActive] = CRYPTO_JSON_EDITOR_BUTTON_ACTIVE;
+
+    style->Colors[ImGuiCol_ScrollbarBg] = CRYPTO_JSON_EDITOR_WINDOW_BG;
+    style->Colors[ImGuiCol_ScrollbarGrabActive] = CRYPTO_JSON_EDITOR_BUTTON_ACTIVE;
+    style->Colors[ImGuiCol_ScrollbarGrabHovered] = CRYPTO_JSON_EDITOR_BUTTON_HOVERED;
+
+    style->Colors[ImGuiCol_FrameBg] = CRYPTO_JSON_EDITOR_WINDOW_BG;
+    style->Colors[ImGuiCol_FrameBgHovered] = CRYPTO_JSON_EDITOR_BUTTON_HOVERED;
+    style->Colors[ImGuiCol_FrameBgActive] = CRYPTO_JSON_EDITOR_BUTTON_ACTIVE;
+
+    style->Colors[ImGuiCol_TextSelectedBg] = CRYPTO_JSON_EDITOR_LIGHT;
+
+    // style->Colors[ImGuiCol_CheckMark] = CRYPTO_JSON_EDITOR_LIGHT;///
+    // style->Colors[ImGuiCol_MenuBarBg] = CRYPTO_JSON_EDITOR_WINDOW_BG;
+    //style->Colors[ImGuiCol_ChildBg] = CRYPTO_JSON_EDITOR_ACTIVE_WINDOW_BG;
+    //style->Colors[ImGuiCol_WindowBg] = CRYPTO_JSON_EDITOR_WINDOW_BG;
 #   if(0)
     /* цвета текста */
     style->Colors[ImGuiCol_Text] = CRYPTO_JSON_EDITOR_TEXT;

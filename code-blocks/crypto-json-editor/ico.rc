@@ -1,0 +1,5 @@
+#include "ico.h"
+#include "windows.h"
+
+CRYPTO_JSON_EDITOR_ICON ICON "icon//icon.ico"
+
